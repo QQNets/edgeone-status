@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清羽飞扬 API 文档</title>
+    <link rel="icon" href="/favicon.png">
+    <script src="assets/tailwindcss.js"></script>
+    <style>
+        @import url('https://jsd.liiiu.cn/gh/willow-god/Sharding-fonts/ZhuqueFangsong-Regular/result.min.css');
+
+        body {
+            font-family: "Zhuque Fangsong (technical preview)", "Noto Sans SC", sans-serif !important;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 30%),
+                radial-gradient(circle at right, rgba(99, 102, 241, 0.12), transparent 28%),
+                linear-gradient(180deg, #f8fbff 0%, #f8fafc 48%, #eef4ff 100%);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            box-shadow: 0 20px 50px -34px rgba(15, 23, 42, 0.28);
+        }
+
+        .endpoint-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 18px 45px -34px rgba(15, 23, 42, 0.32);
+        }
+
+        .code-block {
+            background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+            color: #e2e8f0;
+        }
+
+        .nav-link {
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.68);
+        }
+
+        .nav-link-active {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+        }
+
+        .method-badge {
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: #047857;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .doc-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            background: rgba(255,255,255,0.72);
+        }
+
+        .doc-table th,
+        .doc-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.75rem 0.9rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .doc-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .doc-table th {
+            background: rgba(248,250,252,0.92);
+            color: #334155;
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .inline-code {
+            border-radius: 0.45rem;
+            background: #f1f5f9;
+            padding: 0.12rem 0.38rem;
+            color: #0f172a;
+            font-weight: 600;
+        }
+    </style>
+    <script>
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                if (config.siteName) {
+                    document.getElementById('brand-name').innerText = config.siteName;
+                }
+                if (config.siteIcon) {
+                    const favicon = document.querySelector('link[rel="icon"]');
+                    if (favicon) favicon.href = config.siteIcon;
+                }
+                if (config.icp) {
+                    const icp = document.getElementById('icp-link');
+                    if (icp) {
+                        icp.innerText = config.icp;
+                        icp.classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching config:', error);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchConfig);
+    </script>
+</head>
+<body class="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl space-y-8">
+        <div class="glass-panel rounded-[28px] px-5 py-5 sm:px-7 sm:py-6">
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-950 shadow-lg shadow-sky-500/10">
+                            <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-600">Local API Guide</p>
+                            <h1 class="mt-1 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">清羽飞扬 API 文档</h1>
+                            <p class="mt-1 text-sm text-slate-500 sm:text-base">说明本项目本地 /api 接口的用途、参数和查询方式，方便你调试与二次开发。</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 rounded-2xl bg-white/70 p-1.5 shadow-sm ring-1 ring-slate-200/80">
+                        <a href="/" class="nav-link inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium">数据看板</a>
+                        <a href="/docs.html" class="nav-link nav-link-active inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium">API 文档</a>
+                    </div>
+                </div>
+
+                <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+                    <div class="rounded-[24px] border border-white/70 bg-gradient-to-br from-white via-sky-50/70 to-indigo-50/70 px-6 py-7">
+                        <div class="space-y-4">
+                            <span class="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-slate-800">仅覆盖本项目本地 API</span>
+                            <h2 class="text-2xl font-medium leading-tight text-slate-700 sm:text-[1.65rem]">如何查询数据？先看这三件事。</h2>
+                            <div class="space-y-3 text-sm leading-7 text-slate-600 sm:text-base">
+                                <p>1. 这些接口都是当前站点下的本地接口，例如 <span class="font-medium text-slate-900">/api/config</span>、<span class="font-medium text-slate-900">/api/traffic</span>。</p>
+                                <p>2. 接口背后会由服务端使用腾讯云密钥去请求 EdgeOne / Pages 数据，所以浏览器侧不需要直接暴露 SecretId / SecretKey。</p>
+                                <p>3. 最常用的数据入口是 <span class="font-medium text-slate-900">/api/traffic</span>，通过不同 metric 参数获取流量、带宽、请求数、性能、安全与排行数据。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rounded-[24px] border border-white/70 bg-white/88 p-5 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.38)]">
+                        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">基础信息</p>
+                        <div class="mt-4 space-y-4 text-sm text-slate-600">
+                            <div>
+                                <p class="font-medium text-slate-900">站点名称</p>
+                                <p id="brand-name" class="mt-1">清羽飞扬流量分析</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-slate-900">接口前缀</p>
+                                <p class="mt-1">同域调用，统一使用 <span class="rounded bg-slate-100 px-2 py-1 text-slate-900">/api/*</span></p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-slate-900">错误返回</p>
+                                <p class="mt-1">失败时通常返回 <span class="rounded bg-slate-100 px-2 py-1 text-slate-900">{ "error": "..." }</span></p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-slate-900">服务端依赖</p>
+                                <p class="mt-1">需正确配置 SECRET_ID 与 SECRET_KEY，或在根目录提供 key.txt。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+            <aside class="glass-panel rounded-[24px] p-5 xl:sticky xl:top-6 xl:self-start">
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">目录</p>
+                <nav class="mt-4 space-y-2 text-sm">
+                    <a href="#quick-start" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">快速开始</a>
+                    <a href="#auth" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">鉴权与时间</a>
+                    <a href="#response-shapes" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">返回结构</a>
+                    <a href="#config" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">/api/config</a>
+                    <a href="#zones" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">/api/zones</a>
+                    <a href="#hosts" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">/api/hosts</a>
+                    <a href="#traffic" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">/api/traffic</a>
+                    <a href="#metrics" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">指标速查</a>
+                    <a href="#pages-build" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">/api/pages/build-count</a>
+                    <a href="#pages-fn-requests" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">/api/pages/cloud-function-requests</a>
+                    <a href="#pages-fn-monthly" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">/api/pages/cloud-function-monthly-stats</a>
+                    <a href="#troubleshooting" class="block rounded-xl px-3 py-2 text-slate-600 hover:bg-white hover:text-slate-950">常见问题</a>
+                </nav>
+            </aside>
+
+            <main class="space-y-6">
+                <section id="quick-start" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Quick Start</p>
+                            <h2 class="mt-2 text-2xl font-semibold text-slate-950">快速查询示例</h2>
+                            <p class="mt-2 text-sm leading-7 text-slate-600">如果你只是想快速看数据，通常先调用站点列表，再带着 zoneId 查询域名和 traffic 数据。</p>
+                        </div>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">GET /api/zones
+GET /api/hosts?zoneId=zone-xxxx
+GET /api/traffic?metric=l7Flow_flux&startTime=2026-05-11T00:00:00Z&endTime=2026-05-11T23:59:59Z&zoneId=zone-xxxx&host=example.com</pre>
+                        </div>
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">查询顺序建议：</span>先拿 Zone，再根据 Zone 拿 Host，最后按 metric 请求图表数据。</p>
+                            <p class="mt-2"><span class="font-medium text-slate-900">时间参数：</span>统一传 ISO 时间字符串，和首页看板内部逻辑保持一致。</p>
+                            <p class="mt-2"><span class="font-medium text-slate-900">注意：</span>/api/traffic 的返回结构会随 metric 类型变化，不建议把它当成完全固定的单一 JSON 结构。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="auth" class="endpoint-card rounded-[24px] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Auth & Time</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-slate-950">鉴权、时间与通用约定</h2>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">浏览器侧无需鉴权：</span>所有请求都发往本站 <span class="inline-code">/api/*</span>，腾讯云密钥只在服务端读取。</p>
+                            <p class="mt-2"><span class="font-medium text-slate-900">密钥来源：</span>优先读取环境变量 <span class="inline-code">SECRET_ID</span> 与 <span class="inline-code">SECRET_KEY</span>，缺失时尝试读取根目录 <span class="inline-code">key.txt</span>。</p>
+                            <p class="mt-2"><span class="font-medium text-slate-900">时间格式：</span>建议使用 UTC ISO 字符串，例如 <span class="inline-code">2026-05-11T00:00:00Z</span>。</p>
+                        </div>
+                        <div class="overflow-x-auto text-sm">
+                            <table class="doc-table">
+                                <thead><tr><th>字段</th><th>说明</th></tr></thead>
+                                <tbody>
+                                    <tr><td><span class="inline-code">zoneId</span></td><td>站点 ID；不传时部分接口会使用 <span class="inline-code">*</span> 或尝试自动发现 Pages Zone。</td></tr>
+                                    <tr><td><span class="inline-code">host</span></td><td>域名过滤；传 <span class="inline-code">*</span> 或不传表示不过滤。</td></tr>
+                                    <tr><td><span class="inline-code">interval</span></td><td>统计粒度；支持值取决于腾讯云接口，传 <span class="inline-code">auto</span> 时服务端不透传。</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="response-shapes" class="endpoint-card rounded-[24px] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Response Shapes</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-slate-950">返回结构怎么理解</h2>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-3">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">时序类指标</p>
+                            <p class="mt-2">流量、带宽、请求、性能、安全等通常返回时间序列，前端会按时间轴汇总成趋势图和 KPI。</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">TOP 排行类指标</p>
+                            <p class="mt-2">国家、状态码、域名、URL 等排行通常在 <span class="inline-code">Data[0].DetailData</span> 中读取 Key/Value。</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">Pages 接口</p>
+                            <p class="mt-2">Pages 相关接口可能返回字符串形式的 <span class="inline-code">Result</span>，服务端会尝试追加 <span class="inline-code">parsedResult</span>。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="config" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-950">/api/config</h3>
+                            <p class="mt-2 text-sm text-slate-600">获取站点名称、图标和备案号等前端展示配置。</p>
+                        </div>
+                        <span class="method-badge">GET</span>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm text-slate-600">
+                            <p class="font-medium text-slate-900">请求参数</p>
+                            <p class="mt-2">无。</p>
+                            <p class="mt-4 font-medium text-slate-900">典型用途</p>
+                            <p class="mt-2">首页和文档页启动时读取品牌信息，并更新标题、图标与备案号展示。</p>
+                        </div>
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">{
+  "siteName": "清羽飞扬流量分析",
+  "siteIcon": "/favicon.png",
+  "icp": "陕ICP备2024028531号"
+}</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="zones" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-950">/api/zones</h3>
+                            <p class="mt-2 text-sm text-slate-600">获取当前账号可访问的 Zone 列表，用于填充站点下拉框。</p>
+                        </div>
+                        <span class="method-badge">GET</span>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">请求参数：</span>无。</p>
+                            <p class="mt-2"><span class="font-medium text-slate-900">查询用途：</span>页面初始化时先读取站点列表，再决定后续的 Host 与指标查询目标。</p>
+                            <p class="mt-2"><span class="font-medium text-slate-900">失败情况：</span>如果密钥缺失，会返回 500 与 error 字段。</p>
+                        </div>
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">GET /api/zones</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="hosts" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-950">/api/hosts</h3>
+                            <p class="mt-2 text-sm text-slate-600">根据选中的 Zone 推导可选域名列表，便于查看某个子域名的数据。</p>
+                        </div>
+                        <span class="method-badge">GET</span>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">请求参数：</span></p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5">
+                                <li><span class="font-medium text-slate-900">zoneId</span>：目标站点 ID，建议必传。</li>
+                            </ul>
+                            <p class="mt-3"><span class="font-medium text-slate-900">返回说明：</span>返回结构里常见 <span class="inline-code">Hosts</span> 数组，每项包含 Host 字段。</p>
+                            <p class="mt-3"><span class="font-medium text-slate-900">前端额外处理：</span>首页会进一步过滤带有 <span class="inline-code">.edgeone.</span> 的默认域名。</p>
+                        </div>
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">GET /api/hosts?zoneId=zone-xxxx
+
+{
+  "Hosts": [
+    { "Host": "www.example.com" },
+    { "Host": "api.example.com" }
+  ]
+}</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="traffic" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-950">/api/traffic</h3>
+                            <p class="mt-2 text-sm text-slate-600">核心数据接口。通过 metric 参数统一查询流量、带宽、请求数、性能、安全和 TOP 排行数据。</p>
+                        </div>
+                        <span class="method-badge">GET</span>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">常用参数：</span></p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5">
+                                <li><span class="font-medium text-slate-900">metric</span>：指标名，必传；不传时默认 <span class="inline-code">l7Flow_flux</span>。</li>
+                                <li><span class="font-medium text-slate-900">startTime</span> / <span class="font-medium text-slate-900">endTime</span>：时间范围；不传时默认最近 24 小时。</li>
+                                <li><span class="font-medium text-slate-900">zoneId</span>：站点 ID；不传时传给腾讯云的 ZoneIds 为 <span class="inline-code">["*"]</span>。</li>
+                                <li><span class="font-medium text-slate-900">host</span>：域名过滤；仅部分指标支持，安全指标不支持按域名过滤。</li>
+                                <li><span class="font-medium text-slate-900">interval</span>：统计粒度；可选，不传则由腾讯云接口决定。</li>
+                            </ul>
+                            <p class="mt-3"><span class="font-medium text-slate-900">分流逻辑：</span>服务端会根据 metric 自动选择腾讯云接口：时序 L7、源站拉取、TOP 排行、安全防护或 Edge Functions。</p>
+                        </div>
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">GET /api/traffic?metric=l7Flow_request&startTime=2026-05-11T00:00:00Z&endTime=2026-05-11T23:59:59Z&zoneId=zone-xxxx&host=www.example.com
+
+// 返回为腾讯云原始响应；前端会在浏览器侧转成图表需要的结构。</pre>
+                        </div>
+                    </div>
+                    <div class="mt-5 overflow-x-auto text-sm">
+                        <table class="doc-table">
+                            <thead><tr><th>metric 类型</th><th>服务端调用</th><th>host 过滤</th><th>说明</th></tr></thead>
+                            <tbody>
+                                <tr><td>普通时序</td><td><span class="inline-code">DescribeTimingL7AnalysisData</span></td><td>支持</td><td>流量、带宽、请求、响应耗时等基础指标。</td></tr>
+                                <tr><td>源站拉取</td><td><span class="inline-code">DescribeTimingL7OriginPullData</span></td><td>支持</td><td>后缀为 <span class="inline-code">_hy</span> 的源站回源类指标。</td></tr>
+                                <tr><td>TOP 排行</td><td><span class="inline-code">DescribeTopL7AnalysisData</span></td><td>支持</td><td>国家、区域、状态码、域名、URL、UA 等排行。</td></tr>
+                                <tr><td>安全防护</td><td><span class="inline-code">DescribeWebProtectionData</span></td><td>不支持</td><td>CC / 托管规则 / 速率限制等拦截次数。</td></tr>
+                                <tr><td>边缘函数</td><td><span class="inline-code">DescribeTimingFunctionAnalysisData</span></td><td>支持</td><td>函数请求数、CPU 耗时等函数分析指标。</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="metrics" class="endpoint-card rounded-[24px] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Metrics</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-slate-950">指标速查表</h2>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">看板常用指标</p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5">
+                                <li><span class="inline-code">l7Flow_flux</span>：总流量</li>
+                                <li><span class="inline-code">l7Flow_inFlux</span> / <span class="inline-code">l7Flow_outFlux</span>：请求 / 响应流量</li>
+                                <li><span class="inline-code">l7Flow_bandwidth</span>：总带宽峰值</li>
+                                <li><span class="inline-code">l7Flow_request</span>：请求数</li>
+                                <li><span class="inline-code">l7Flow_avgResponseTime</span>：平均响应耗时</li>
+                                <li><span class="inline-code">l7Flow_avgFirstByteResponseTime</span>：平均首字节耗时</li>
+                            </ul>
+                        </div>
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">安全与函数指标</p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5">
+                                <li><span class="inline-code">ccAcl_interceptNum</span>：精准防护拦截</li>
+                                <li><span class="inline-code">ccManage_interceptNum</span>：托管规则拦截</li>
+                                <li><span class="inline-code">ccRate_interceptNum</span>：速率限制拦截</li>
+                                <li><span class="inline-code">function_requestCount</span>：边缘函数请求数</li>
+                                <li><span class="inline-code">function_cpuCostTime</span>：边缘函数 CPU 耗时</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-5 overflow-x-auto text-sm">
+                        <table class="doc-table">
+                            <thead><tr><th>排行维度</th><th>流量 metric</th><th>请求数 metric</th></tr></thead>
+                            <tbody>
+                                <tr><td>国家</td><td><span class="inline-code">l7Flow_outFlux_country</span></td><td><span class="inline-code">l7Flow_request_country</span></td></tr>
+                                <tr><td>省份 / 区域</td><td><span class="inline-code">l7Flow_outFlux_province</span></td><td><span class="inline-code">l7Flow_request_province</span></td></tr>
+                                <tr><td>状态码</td><td><span class="inline-code">l7Flow_outFlux_statusCode</span></td><td><span class="inline-code">l7Flow_request_statusCode</span></td></tr>
+                                <tr><td>域名</td><td><span class="inline-code">l7Flow_outFlux_domain</span></td><td><span class="inline-code">l7Flow_request_domain</span></td></tr>
+                                <tr><td>URL</td><td><span class="inline-code">l7Flow_outFlux_url</span></td><td><span class="inline-code">l7Flow_request_url</span></td></tr>
+                                <tr><td>客户端</td><td><span class="inline-code">l7Flow_outFlux_ua</span></td><td><span class="inline-code">l7Flow_request_ua</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="pages-build" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-950">/api/pages/build-count</h3>
+                            <p class="mt-2 text-sm text-slate-600">查询 Pages 构建或部署使用情况。</p>
+                        </div>
+                        <span class="method-badge">GET</span>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">请求参数：</span></p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5">
+                                <li><span class="font-medium text-slate-900">zoneId</span>：可选，不传时服务端会尝试自动发现 <span class="inline-code">default-pages-zone</span>。</li>
+                            </ul>
+                            <p class="mt-3"><span class="font-medium text-slate-900">内部调用：</span><span class="inline-code">DescribePagesResources</span>，Interface 为 <span class="inline-code">pages:DescribePagesDeploymentUsage</span>。</p>
+                            <p class="mt-3"><span class="font-medium text-slate-900">返回说明：</span>如果响应中存在 Result 串，服务端会尝试额外解析为 <span class="inline-code">parsedResult</span> 字段。</p>
+                        </div>
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">GET /api/pages/build-count?zoneId=zone-xxxx
+
+{
+  "Result": "{...}",
+  "parsedResult": { }
+}</pre>
+                        </div>
+                    </div>
+                </section>
+
+
+                <section id="pages-fn-requests" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-950">/api/pages/cloud-function-requests</h3>
+                            <p class="mt-2 text-sm text-slate-600">查询 Pages 云函数请求量统计，适合看某段时间内函数调用表现。</p>
+                        </div>
+                        <span class="method-badge">GET</span>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">请求参数：</span></p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5">
+                                <li><span class="font-medium text-slate-900">zoneId</span>：可选；不传时自动寻找 Pages Zone。</li>
+                                <li><span class="font-medium text-slate-900">startTime</span>：可选；开始时间。</li>
+                                <li><span class="font-medium text-slate-900">endTime</span>：可选；结束时间。</li>
+                            </ul>
+                            <p class="mt-3"><span class="font-medium text-slate-900">内部调用：</span><span class="inline-code">DescribePagesResources</span>，Interface 为 <span class="inline-code">pages:DescribePagesFunctionsRequestDataByZone</span>，默认 Interval 为 <span class="inline-code">hour</span>。</p>
+                        </div>
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">GET /api/pages/cloud-function-requests?zoneId=zone-xxxx&startTime=2026-05-01T00:00:00Z&endTime=2026-05-11T23:59:59Z</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="pages-fn-monthly" class="endpoint-card rounded-[24px] p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-slate-950">/api/pages/cloud-function-monthly-stats</h3>
+                            <p class="mt-2 text-sm text-slate-600">查询 Pages 云函数历史或月度统计数据。</p>
+                        </div>
+                        <span class="method-badge">GET</span>
+                    </div>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p><span class="font-medium text-slate-900">请求参数：</span></p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5">
+                                <li><span class="font-medium text-slate-900">zoneId</span>：可选；不传时自动寻找 Pages Zone。</li>
+                            </ul>
+                            <p class="mt-3"><span class="font-medium text-slate-900">内部调用：</span><span class="inline-code">DescribePagesResources</span>，Interface 为 <span class="inline-code">pages:DescribeHistoryCloudFunctionStats</span>。</p>
+                            <p class="mt-3"><span class="font-medium text-slate-900">适合场景：</span>查看更长周期的云函数用量、历史统计或用于扩展运营面板。</p>
+                        </div>
+                        <div class="code-block rounded-2xl p-4 text-sm leading-7">
+                            <pre class="whitespace-pre-wrap">GET /api/pages/cloud-function-monthly-stats?zoneId=zone-xxxx</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="troubleshooting" class="endpoint-card rounded-[24px] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Troubleshooting</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-slate-950">常见问题与排查</h2>
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">返回 Missing credentials</p>
+                            <p class="mt-2">说明服务端没有读到腾讯云密钥。请检查环境变量 <span class="inline-code">SECRET_ID</span> / <span class="inline-code">SECRET_KEY</span>，或确认 <span class="inline-code">key.txt</span> 格式可被读取。</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">域名下拉为空</p>
+                            <p class="mt-2"><span class="inline-code">/api/hosts</span> 会查询最近 7 天的域名流量排行；如果该 Zone 最近无数据，可能只返回空数组。</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">安全数据与域名不一致</p>
+                            <p class="mt-2">安全防护接口当前只按 Zone 查询，不支持按 Host 过滤，因此选择单个域名时安全卡片仍可能显示站点级数据。</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-7 text-slate-600">
+                            <p class="font-medium text-slate-900">Pages 数据获取不到</p>
+                            <p class="mt-2">Pages 接口会优先寻找 <span class="inline-code">default-pages-zone</span>。如果账号没有 Pages Zone 或权限不足，会返回 400 / 500 错误。</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <footer class="glass-panel flex flex-col items-center justify-center rounded-[24px] px-6 pt-8 pb-6 text-sm text-slate-500 space-y-3">
+            <div class="flex flex-col items-center gap-2 text-center sm:flex-row sm:gap-4">
+                <a id="icp-link" href="https://beian.miit.gov.cn/" target="_blank" class="hover:text-sky-600 transition-colors hidden">陕ICP备2024028531号</a>
+                <span>本页仅描述当前项目本地 API，并不直接替代腾讯云官方 API 文档。</span>
+            </div>
+            <div class="text-center text-xs text-slate-400">如需查看数据展示效果，请返回 <a href="/" class="font-medium text-sky-600 hover:text-sky-700">清羽飞扬流量分析首页</a>。</div>
+        </footer>
+    </div>
+</body>
+</html>

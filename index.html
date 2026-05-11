@@ -4,39 +4,265 @@
     <link rel="icon" href="/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新锐博客流量分析</title>
-    <!-- Tailwind CSS for Shadcn/UI style -->
+    <title>清羽飞扬流量分析</title>
+    <!-- Tailwind CSS -->
     <script src="assets/tailwindcss.js"></script>
     <script src="assets/echarts.min.js"></script>
     <script src="assets/world.js"></script>
     <style>
-/* 字体引入 */
-@import url('https://cdn.xrbk.cn/fonts/HarmonyOS_Sans_SC/result.css');
-body{font-family:"HarmonyOS Sans SC" !important}
-        
-        /* Card hover effect - subtle */
-        .card-hover {
-            transition: all 0.2s ease;
+        @import url('https://jsd.liiiu.cn/gh/willow-god/Sharding-fonts/ZhuqueFangsong-Regular/result.min.css');
+
+        body {
+            font-family: "Zhuque Fangsong (technical preview)", "Noto Sans SC", sans-serif !important;
+            color: #0f172a;
+            background:
+                radial-gradient(circle at 8% 0%, rgba(125, 211, 252, 0.28), transparent 26%),
+                radial-gradient(circle at 88% 8%, rgba(196, 181, 253, 0.18), transparent 28%),
+                linear-gradient(180deg, #f8fbff 0%, #f6f8fb 45%, #eef4ff 100%);
         }
-        .card-hover:hover {
-            box-shadow: 0 4px 20px -4px rgba(0,0,0,0.08);
+
+        .app-shell {
+            background: rgba(255, 255, 255, 0.56);
+            border: 1px solid rgba(226, 232, 240, 0.78);
+            box-shadow: 0 24px 80px -52px rgba(15, 23, 42, 0.32);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
-        
-        /* Section title styling */
+
+        .glass-panel {
+            position: relative;
+            z-index: 40;
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(226, 232, 240, 0.86);
+            box-shadow: 0 18px 52px -42px rgba(15, 23, 42, 0.35);
+        }
+
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.92));
+            box-shadow: 0 18px 44px -36px rgba(15, 23, 42, 0.34);
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        }
+
+        .metric-card:hover,
+        .chart-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.42);
+            box-shadow: 0 28px 70px -48px rgba(15, 23, 42, 0.45);
+        }
+
+        .chart-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 22px 58px -46px rgba(15, 23, 42, 0.36);
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(56,189,248,0.5), transparent);
+        }
+
+        .section-block {
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(226, 232, 240, 0.76);
+            background: rgba(255, 255, 255, 0.44);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+
         .section-title {
             position: relative;
             padding-left: 1rem;
+            letter-spacing: 0.02em;
         }
+
         .section-title::before {
             content: '';
             position: absolute;
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 4px;
+            width: 5px;
             height: 1.25rem;
-            background: #3b82f6;
-            border-radius: 2px;
+            background: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+            border-radius: 999px;
+        }
+
+        .nav-link {
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.68);
+        }
+
+        .nav-link-active {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.22);
+        }
+
+        .hero-badge {
+            border: 1px solid rgba(125, 211, 252, 0.62);
+            background: rgba(240, 249, 255, 0.84);
+            color: #0f172a;
+        }
+
+        .hero-grid {
+            background-image: linear-gradient(rgba(148, 163, 184, 0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+            background-size: 26px 26px;
+        }
+
+        .control-card {
+            position: relative;
+            z-index: 20;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.86);
+            box-shadow: 0 16px 38px -34px rgba(15, 23, 42, 0.3);
+        }
+
+        .control-card:has(.custom-select.is-open) {
+            z-index: 80;
+        }
+
+        .time-range-btn {
+            height: 2.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            background: rgba(255,255,255,0.9);
+            padding: 0 0.9rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .time-range-btn:hover {
+            border-color: #bae6fd;
+            color: #0f172a;
+            background: #f8fafc;
+        }
+
+        .time-range-btn.is-active {
+            border-color: #0f172a;
+            color: white;
+            background: #0f172a;
+            box-shadow: 0 12px 28px -18px rgba(15,23,42,0.7);
+        }
+
+        .custom-select {
+            position: relative;
+        }
+
+        .custom-select-trigger {
+            display: flex;
+            width: 100%;
+            height: 2.45rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            border-radius: 0.85rem;
+            border: 1px solid #e2e8f0;
+            background: rgba(255,255,255,0.94);
+            padding: 0 0.85rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #334155;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .custom-select-trigger:hover:not(:disabled),
+        .custom-select.is-open .custom-select-trigger {
+            border-color: #bae6fd;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(56,189,248,0.12);
+        }
+
+        .custom-select-trigger:disabled {
+            cursor: not-allowed;
+            color: #94a3b8;
+            background: #f8fafc;
+        }
+
+        .custom-select-icon {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-right: 1.8px solid #64748b;
+            border-bottom: 1.8px solid #64748b;
+            transform: translateY(-18%) rotate(45deg);
+            transition: transform 0.2s ease;
+            flex: none;
+        }
+
+        .custom-select.is-open .custom-select-icon {
+            transform: translateY(18%) rotate(225deg);
+        }
+
+        .custom-select-menu {
+            position: absolute;
+            z-index: 999;
+            left: 0;
+            right: 0;
+            top: calc(100% + 0.45rem);
+            max-height: 15rem;
+            overflow-y: auto;
+            border-radius: 1rem;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            background: rgba(255,255,255,0.98);
+            padding: 0.35rem;
+            box-shadow: 0 22px 56px -34px rgba(15, 23, 42, 0.48);
+            opacity: 0;
+            transform: translateY(-0.25rem) scale(0.98);
+            pointer-events: none;
+            transition: opacity 0.16s ease, transform 0.16s ease;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .custom-select.is-open .custom-select-menu {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .custom-select-option {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 0.75rem;
+            padding: 0.62rem 0.7rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #475569;
+            transition: background 0.16s ease, color 0.16s ease;
+        }
+
+        .custom-select-option:hover,
+        .custom-select-option.is-active {
+            background: #f0f9ff;
+            color: #0f172a;
+        }
+
+        .custom-select-option.is-active::after {
+            content: '✓';
+            color: #0284c7;
+            font-size: 0.8rem;
         }
     </style>
     <script>
@@ -143,55 +369,105 @@ body{font-family:"HarmonyOS Sans SC" !important}
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-8">
-    <div class="max-w-7xl mx-auto space-y-6">
+<body class="min-h-screen px-3 py-4 sm:px-5 lg:px-7">
+    <div class="app-shell max-w-7xl mx-auto space-y-5 rounded-[28px] p-3 sm:p-5 lg:p-6">
         
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 border-b border-slate-200 gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h1 id="page-header" class="text-2xl font-bold text-slate-900">新锐博客旗下监控大屏</h1>
-                    <p class="text-sm text-slate-500">EdgeOne 站点流量与请求量分析</p>
-                </div>
-            </div>
-            <!-- Time Controls -->
-            <div class="flex flex-wrap items-end gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-medium text-slate-500 uppercase tracking-wider">时间范围</label>
-                    <div class="flex gap-2">
-                        <button onclick="setTimeRange('1h')" class="time-range-btn h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" data-value="1h">1小时</button>
-                        <button onclick="setTimeRange('today')" class="time-range-btn h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" data-value="today">当天</button>
-                        <button onclick="setTimeRange('yesterday')" class="time-range-btn h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" data-value="yesterday">昨天</button>
-                        <button onclick="setTimeRange('7d')" class="time-range-btn h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" data-value="7d">七天</button>
-                        <button onclick="setTimeRange('31d')" class="time-range-btn h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" data-value="31d">31天</button>
+        <div class="glass-panel rounded-[24px] px-4 py-4 sm:px-5 sm:py-4">
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 shadow-lg shadow-sky-500/10">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-600">Qingyu Analytics</p>
+                            <h1 id="page-header" class="mt-1 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">清羽飞扬流量分析</h1>
+                            <p class="mt-1 max-w-2xl text-sm leading-6 text-slate-500">面向 EdgeOne 与 Pages 的站点流量、请求与安全分析面板。</p>
+                        </div>
                     </div>
-                    <input type="hidden" id="timeRange" value="1h">
+                    <div class="flex flex-wrap items-center gap-2 rounded-2xl bg-white/70 p-1.5 shadow-sm ring-1 ring-slate-200/80">
+                        <a href="/" class="nav-link nav-link-active inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium">数据看板</a>
+                        <a href="/docs.html" class="nav-link inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium">API 文档</a>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-1.5">
-                    <label for="zoneId" class="text-xs font-medium text-slate-500 uppercase tracking-wider">选择站点</label>
-                    <select id="zoneId" onchange="onZoneChange()" class="h-9 w-[140px] rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                         <option value="*">加载中...</option>
-                    </select>
+
+                <div class="hero-grid relative overflow-hidden rounded-[22px] border border-white/70 bg-gradient-to-br from-white via-sky-50/75 to-indigo-50/70 px-5 py-5 sm:px-6 sm:py-5">
+                    <div class="absolute -right-10 -top-14 h-32 w-32 rounded-full bg-sky-200/40 blur-3xl"></div>
+                    <div class="relative grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-center">
+                        <div class="space-y-3">
+                            <div class="flex flex-wrap gap-2">
+                                <span class="hero-badge inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">EdgeOne 站点总览</span>
+                                <span class="hero-badge inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">Pages 统计</span>
+                                <span class="hero-badge inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">本地 API 文档</span>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-medium leading-tight text-slate-700 sm:text-2xl">清羽飞扬站点数据总览</h2>
+                                <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">聚合展示 EdgeOne 与 Pages 的流量、请求、带宽与安全指标，快速掌握站点运行状态、请求趋势与热点分布。</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 rounded-2xl border border-white/80 bg-white/78 p-3 shadow-sm">
+                            <div class="rounded-xl border border-slate-200/90 bg-slate-50/90 p-3 text-center shadow-sm">
+                                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-400">维度</p>
+                                <p class="mt-1 text-base font-semibold text-slate-900">6+</p>
+                            </div>
+                            <div class="rounded-xl border border-slate-200/90 bg-slate-50/90 p-3 text-center shadow-sm">
+                                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-400">筛选</p>
+                                <p class="mt-1 text-base font-semibold text-slate-900">3 类</p>
+                            </div>
+                            <div class="rounded-xl border border-sky-200/90 bg-sky-50/90 p-3 text-center shadow-sm">
+                                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-400">文档</p>
+                                <p class="mt-1 text-base font-semibold text-slate-900">可查阅</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-1.5">
-                    <label for="hostId" class="text-xs font-medium text-slate-500 uppercase tracking-wider">选择域名</label>
-                    <select id="hostId" onchange="refreshData()" class="h-9 w-[140px] rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
-                         <option value="*">全部域名</option>
-                    </select>
+
+                <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px_240px]">
+                    <div class="control-card rounded-2xl p-4">
+                        <label class="mb-3 block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">时间范围</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setTimeRange('1h')" class="time-range-btn" data-value="1h">1小时</button>
+                            <button onclick="setTimeRange('today')" class="time-range-btn" data-value="today">当天</button>
+                            <button onclick="setTimeRange('yesterday')" class="time-range-btn" data-value="yesterday">昨天</button>
+                            <button onclick="setTimeRange('7d')" class="time-range-btn" data-value="7d">七天</button>
+                            <button onclick="setTimeRange('31d')" class="time-range-btn" data-value="31d">31天</button>
+                        </div>
+                        <input type="hidden" id="timeRange" value="1h">
+                    </div>
+                    <div class="control-card rounded-2xl p-4">
+                        <label for="zoneId-trigger" class="mb-3 block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">选择站点</label>
+                        <input type="hidden" id="zoneId" value="*">
+                        <div class="custom-select" data-select="zoneId">
+                            <button type="button" id="zoneId-trigger" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                <span data-select-label>加载中...</span>
+                                <span class="custom-select-icon"></span>
+                            </button>
+                            <div class="custom-select-menu" id="zoneId-menu" role="listbox"></div>
+                        </div>
+                    </div>
+                    <div class="control-card rounded-2xl p-4">
+                        <label for="hostId-trigger" class="mb-3 block text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">选择域名</label>
+                        <input type="hidden" id="hostId" value="*">
+                        <div class="custom-select" data-select="hostId">
+                            <button type="button" id="hostId-trigger" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                <span data-select-label>全部域名</span>
+                                <span class="custom-select-icon"></span>
+                            </button>
+                            <div class="custom-select-menu" id="hostId-menu" role="listbox"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="space-y-8">
+        <div class="space-y-8 pt-8">
 
             <!-- Section 1: Traffic (流量) -->
-            <div class="space-y-5">
+            <div class="section-block space-y-5 rounded-[24px] p-4 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-800 section-title flex items-center gap-2">
                     <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
@@ -200,7 +476,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                 </h2>
                 <div class="grid gap-4 md:grid-cols-3">
                     <!-- Total Traffic Card -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -217,7 +493,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                         </div>
                     </div>
                     <!-- Client Request Traffic -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -234,7 +510,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                         </div>
                     </div>
                     <!-- EdgeOne Response Traffic -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -252,8 +528,8 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     </div>
                 </div>
                 <!-- Traffic Chart -->
-                <div class="rounded-xl border bg-white shadow-sm card-hover">
-                    <div class="p-5 border-b border-slate-100">
+                <div class="chart-card rounded-[22px]">
+                    <div class="p-5 border-b border-slate-100/80">
                         <h3 class="font-semibold text-slate-800">流量趋势</h3>
                     </div>
                     <div class="p-5">
@@ -263,7 +539,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
             </div>
 
             <!-- Section 2: Bandwidth (带宽) -->
-            <div class="space-y-5 pt-6 border-t border-slate-200">
+            <div class="section-block space-y-5 rounded-[24px] p-4 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-800 section-title flex items-center gap-2">
                     <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -272,7 +548,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                 </h2>
                 <div class="grid gap-4 md:grid-cols-3">
                     <!-- Total Bandwidth -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -289,7 +565,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                         </div>
                     </div>
                     <!-- In Bandwidth -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -306,7 +582,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                         </div>
                     </div>
                     <!-- Out Bandwidth -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -324,8 +600,8 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     </div>
                 </div>
                 <!-- Bandwidth Chart -->
-                <div class="rounded-xl border bg-white shadow-sm card-hover">
-                    <div class="p-5 border-b border-slate-100">
+                <div class="chart-card rounded-[22px]">
+                    <div class="p-5 border-b border-slate-100/80">
                         <h3 class="font-semibold text-slate-800">带宽趋势</h3>
                     </div>
                     <div class="p-5">
@@ -335,7 +611,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
             </div>
 
             <!-- Section 4: Requests & Performance (请求与性能) -->
-            <div class="space-y-5 pt-6 border-t border-slate-200">
+            <div class="section-block space-y-5 rounded-[24px] p-4 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-800 section-title flex items-center gap-2">
                     <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -344,7 +620,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                 </h2>
                 <div class="grid gap-4 md:grid-cols-3">
                     <!-- Total Requests -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -361,7 +637,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                         </div>
                     </div>
                     <!-- Avg Response Time -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -378,7 +654,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                         </div>
                     </div>
                     <!-- Avg First Byte Time -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
+                    <div class="metric-card rounded-[22px] overflow-hidden">
                         <div class="p-5">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -397,8 +673,8 @@ body{font-family:"HarmonyOS Sans SC" !important}
                 </div>
                 <div class="grid gap-4 md:grid-cols-2">
                     <!-- Requests Chart -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
-                        <div class="p-5 border-b border-slate-100">
+                    <div class="chart-card rounded-[22px]">
+                        <div class="p-5 border-b border-slate-100/80">
                             <h3 class="font-semibold text-slate-800">请求数趋势</h3>
                         </div>
                         <div class="p-5">
@@ -406,8 +682,8 @@ body{font-family:"HarmonyOS Sans SC" !important}
                         </div>
                     </div>
                     <!-- Performance Chart -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
-                        <div class="p-5 border-b border-slate-100">
+                    <div class="chart-card rounded-[22px]">
+                        <div class="p-5 border-b border-slate-100/80">
                             <h3 class="font-semibold text-slate-800">响应耗时趋势</h3>
                         </div>
                         <div class="p-5">
@@ -418,7 +694,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
             </div>
 
             <!-- Section 6: Security Analysis (安全分析) -->
-            <div class="space-y-5 pt-6 border-t border-slate-200">
+            <div class="section-block space-y-5 rounded-[24px] p-4 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-800 section-title flex items-center gap-2">
                     <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -426,21 +702,33 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     安全分析 (Security Analysis)
                 </h2>
 
-                <!-- Security KPI Card -->
+                <!-- Security KPI Cards -->
                 <div class="grid gap-4 md:grid-cols-3">
-                    <div class="rounded-xl border bg-white shadow-sm card-hover overflow-hidden">
-                        <div class="p-5 flex flex-row items-center justify-between space-y-0 pb-2">
-                            <h3 class="text-sm font-medium text-slate-500">总防护命中次数</h3>
+                    <div class="metric-card rounded-[22px] overflow-hidden">
+                        <div class="p-5">
+                            <p class="text-sm font-medium text-slate-500">总防护命中次数</p>
+                            <div class="text-2xl font-bold text-slate-900 mt-1" id="kpi_security_hits">加载中...</div>
+                            <p class="text-xs text-slate-400 mt-3">DDoS/CC 防护总拦截次数</p>
                         </div>
-                        <div class="p-5 pt-0">
-                            <div class="text-2xl font-bold text-slate-800" id="kpi_security_hits">加载中...</div>
-                            <p class="text-xs text-slate-400 mt-1">DDoS/CC 防护总拦截次数</p>
+                    </div>
+                    <div class="metric-card rounded-[22px] overflow-hidden">
+                        <div class="p-5">
+                            <p class="text-sm font-medium text-slate-500">精准防护拦截</p>
+                            <div class="text-2xl font-bold text-slate-900 mt-1" id="kpi_ccAcl_interceptNum">加载中...</div>
+                            <p class="text-xs text-slate-400 mt-3">规则命中的访问拦截次数</p>
+                        </div>
+                    </div>
+                    <div class="metric-card rounded-[22px] overflow-hidden">
+                        <div class="p-5">
+                            <p class="text-sm font-medium text-slate-500">托管与限速拦截</p>
+                            <div class="text-2xl font-bold text-slate-900 mt-1" id="kpi_security_managed_hits">加载中...</div>
+                            <p class="text-xs text-slate-400 mt-3">托管规则与速率限制拦截次数</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Security Chart -->
-                <div class="rounded-xl border bg-white shadow-sm card-hover">
+                <div class="chart-card rounded-[22px]">
                     <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                         <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
                             <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -456,7 +744,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
             </div>
 
             <!-- Section 7: Top Analysis (TOP 分析) -->
-            <div class="space-y-5 pt-6 border-t border-slate-200">
+            <div class="section-block space-y-5 rounded-[24px] p-4 sm:p-5">
                 <h2 class="text-lg font-bold text-slate-800 section-title flex items-center gap-2">
                     <svg class="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -465,7 +753,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                 </h2>
 
                 <!-- World Map -->
-                <div class="rounded-xl border bg-white shadow-sm card-hover">
+                <div class="chart-card rounded-[22px]">
                     <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                         <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
                             <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,7 +769,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
 
                 <div class="grid gap-4 md:grid-cols-2">
                     <!-- Status Code -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
+                    <div class="chart-card rounded-[22px]">
                         <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -496,7 +784,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     </div>
 
                     <!-- Status Code Requests -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
+                    <div class="chart-card rounded-[22px]">
                         <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -511,7 +799,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     </div>
 
                     <!-- Domain -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
+                    <div class="chart-card rounded-[22px]">
                         <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                             <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -526,7 +814,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     </div>
 
                     <!-- Domain Requests -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
+                    <div class="chart-card rounded-[22px]">
                         <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                             <div class="w-8 h-8 bg-cyan-50 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -541,7 +829,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     </div>
 
                     <!-- URL -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
+                    <div class="chart-card rounded-[22px]">
                         <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                             <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -556,7 +844,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
                     </div>
 
                     <!-- URL Requests -->
-                    <div class="rounded-xl border bg-white shadow-sm card-hover">
+                    <div class="chart-card rounded-[22px]">
                         <div class="p-5 border-b border-slate-100 flex items-center gap-2">
                             <div class="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
                                 <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -575,12 +863,13 @@ body{font-family:"HarmonyOS Sans SC" !important}
         </div>
 
         <!-- Footer -->
-        <div class="flex flex-col justify-center items-center pt-10 pb-6 text-sm text-slate-500 space-y-3 border-t border-slate-200 mt-8">
+        <div class="glass-panel flex flex-col justify-center items-center rounded-[22px] px-5 py-5 text-sm text-slate-500 space-y-2">
             <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center">
-                <a id="icp-link" href="https://beian.miit.gov.cn/" target="_blank" class="hover:text-blue-600 transition-colors hidden">京ICP备12345678号</a>
+                <a id="icp-link" href="https://beian.miit.gov.cn/" target="_blank" class="hover:text-sky-600 transition-colors hidden">陕ICP备2024028531号</a>
                 <span id="icp-separator" class="hidden sm:inline hidden">|</span>
-                <span>本项目基于 <a href="https://github.com/afoim/eo_monitior" target="_blank" class="font-medium text-slate-700 hover:text-blue-600 transition-colors">AcoFork/eo_monitor</a> 二次开发</span>
+                <span>本项目基于开源项目 <a href="https://github.com/MoForgt/edgeone-status" target="_blank" class="font-medium text-slate-800 hover:text-sky-600 transition-colors">MoForgt/edgeone-status</a> 构建，遵循原项目许可协议。</span>
             </div>
+            <div class="text-center text-xs text-slate-400">可前往 <a href="/docs.html" class="font-medium text-sky-600 hover:text-sky-700">API 文档</a> 查看本项目本地接口说明。</div>
         </div>
 
     </div>
@@ -593,12 +882,28 @@ body{font-family:"HarmonyOS Sans SC" !important}
         let chartPerformance = null;
         let chartSecurity = null;
         let chartTopMap = null;
+        let chartTopProvince = null;
         let chartTopStatusCode = null;
         let chartTopRequestStatusCode = null;
         let chartTopDomain = null;
         let chartTopRequestDomain = null;
         let chartTopUrl = null;
         let chartTopRequestUrl = null;
+        let chartTopResourceType = null;
+        let chartTopSip = null;
+        let chartTopReferer = null;
+        let chartTopUaDevice = null;
+        let chartTopUaBrowser = null;
+        let chartTopUaOs = null;
+        let chartTopUa = null;
+        let chartTopRequestProvince = null;
+        let chartTopRequestResourceType = null;
+        let chartTopRequestSip = null;
+        let chartTopRequestReferer = null;
+        let chartTopRequestUaDevice = null;
+        let chartTopRequestUaBrowser = null;
+        let chartTopRequestUaOs = null;
+        let chartTopRequestUa = null;
 
         const provinceMap = {
             '22': '北京', '86': '内蒙古', '146': '山西', '1069': '河北', '1177': '天津',
@@ -763,13 +1068,7 @@ body{font-family:"HarmonyOS Sans SC" !important}
             
             // 更新按钮样式
             document.querySelectorAll('.time-range-btn').forEach(btn => {
-                if (btn.dataset.value === range) {
-                    btn.classList.remove('bg-white', 'border-slate-200', 'hover:bg-slate-50');
-                    btn.classList.add('bg-blue-500', 'border-blue-500', 'text-white', 'hover:bg-blue-600');
-                } else {
-                    btn.classList.remove('bg-blue-500', 'border-blue-500', 'text-white', 'hover:bg-blue-600');
-                    btn.classList.add('bg-white', 'border-slate-200', 'hover:bg-slate-50');
-                }
+                btn.classList.toggle('is-active', btn.dataset.value === range);
             });
             
             if (shouldRefresh) {
@@ -1004,9 +1303,9 @@ body{font-family:"HarmonyOS Sans SC" !important}
         function formatCount(num) {
             if (num === 0) return '0';
             if (num < 1000) return num.toString();
-            if (num < 10000) return (num / 1000).toFixed(2) + ' 千';
-            if (num < 100000000) return (num / 10000).toFixed(2) + ' 万';
-            return (num / 100000000).toFixed(2) + ' 亿';
+            if (num < 10000) return parseFloat((num / 1000).toFixed(2)) + ' K';
+            if (num < 1000000) return parseFloat((num / 10000).toFixed(2)) + ' W';
+            return parseFloat((num / 1000000).toFixed(2)) + ' M';
         }
 
         function getBestCountUnit(maxValue) {
@@ -1031,50 +1330,95 @@ body{font-family:"HarmonyOS Sans SC" !important}
             return { unit: units[i], divisor: Math.pow(k, i) };
         }
 
+        function setCustomSelectOptions(selectId, options, value = '*', disabled = false) {
+            const input = document.getElementById(selectId);
+            const wrapper = document.querySelector(`[data-select="${selectId}"]`);
+            const trigger = document.getElementById(`${selectId}-trigger`);
+            const menu = document.getElementById(`${selectId}-menu`);
+            if (!input || !wrapper || !trigger || !menu) return;
+
+            const normalizedOptions = options.length ? options : [{ value: '*', label: '暂无可选项' }];
+            const selectedOption = normalizedOptions.find(option => option.value === value) || normalizedOptions[0];
+            input.value = selectedOption.value;
+            trigger.querySelector('[data-select-label]').innerText = selectedOption.label;
+            trigger.disabled = disabled;
+            menu.innerHTML = '';
+
+            normalizedOptions.forEach(option => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = `custom-select-option${option.value === selectedOption.value ? ' is-active' : ''}`;
+                item.role = 'option';
+                item.setAttribute('aria-selected', option.value === selectedOption.value ? 'true' : 'false');
+                item.dataset.value = option.value;
+                item.innerText = option.label;
+                item.addEventListener('click', async () => {
+                    input.value = option.value;
+                    trigger.querySelector('[data-select-label]').innerText = option.label;
+                    closeCustomSelect(wrapper);
+                    setCustomSelectOptions(selectId, normalizedOptions, option.value, disabled);
+                    if (selectId === 'zoneId') {
+                        await onZoneChange();
+                    } else if (selectId === 'hostId') {
+                        await refreshData();
+                    }
+                });
+                menu.appendChild(item);
+            });
+        }
+
+        function closeCustomSelect(wrapper) {
+            wrapper.classList.remove('is-open');
+            const trigger = wrapper.querySelector('.custom-select-trigger');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function initCustomSelects() {
+            document.querySelectorAll('.custom-select').forEach(wrapper => {
+                const trigger = wrapper.querySelector('.custom-select-trigger');
+                trigger.addEventListener('click', () => {
+                    if (trigger.disabled) return;
+                    document.querySelectorAll('.custom-select.is-open').forEach(openSelect => {
+                        if (openSelect !== wrapper) closeCustomSelect(openSelect);
+                    });
+                    const isOpen = wrapper.classList.toggle('is-open');
+                    trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+            });
+
+            document.addEventListener('click', event => {
+                if (event.target.closest('.custom-select')) return;
+                document.querySelectorAll('.custom-select.is-open').forEach(closeCustomSelect);
+            });
+        }
+
         /** Feature Functions **/
 
         async function fetchZones() {
             try {
                 const response = await fetch('/api/zones');
                 const result = await response.json();
-                
-                const select = document.getElementById('zoneId');
-                // Keep the current selection if possible, or default to *
-                const currentVal = select.value;
-                select.innerHTML = ''; 
-
-                // Always add "All Zones" option
-                const allOption = document.createElement('option');
-                allOption.value = "*";
-                allOption.text = "全部站点";
-                select.appendChild(allOption);
+                const input = document.getElementById('zoneId');
+                const currentVal = input.value || '*';
+                const options = [{ value: '*', label: '全部站点' }];
 
                 if (result.Zones && result.Zones.length > 0) {
                     result.Zones.forEach(zone => {
-                        const option = document.createElement('option');
-                        option.value = zone.ZoneId;
-                        option.text = zone.ZoneName;
-                        select.appendChild(option);
+                        options.push({
+                            value: zone.ZoneId,
+                            label: zone.ZoneName === 'default-pages-zone' ? 'EdgeOne Pages' : zone.ZoneName
+                        });
                     });
                 }
-                
-                // Restore selection if it exists in new options, otherwise default to *
-                if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
-                    select.value = currentVal;
-                } else {
-                    select.value = "*";
-                }
-                
-                // Load hosts for selected zone
-                await fetchHosts(select.value);
+
+                const nextVal = options.some(option => option.value === currentVal) ? currentVal : '*';
+                setCustomSelectOptions('zoneId', options, nextVal);
+                await fetchHosts(nextVal);
 
             } catch (err) {
                 console.error("Error fetching zones:", err);
-                const select = document.getElementById('zoneId');
-                // If error, ensure we have at least the default * option
-                if (select.options.length === 0 || select.options[0].value !== '*') {
-                     select.innerHTML = '<option value="*">获取站点失败 (默认为全部)</option>';
-                }
+                setCustomSelectOptions('zoneId', [{ value: '*', label: '获取站点失败' }], '*', true);
+                await fetchHosts('*');
             }
         }
 
@@ -1085,62 +1429,39 @@ body{font-family:"HarmonyOS Sans SC" !important}
         }
 
         async function fetchHosts(zoneId) {
+            const input = document.getElementById('hostId');
+            const currentVal = input.value || '*';
+
+            if (!zoneId || zoneId === '*') {
+                setCustomSelectOptions('hostId', [{ value: '*', label: '全部域名' }], '*', true);
+                return;
+            }
+
             try {
-                const select = document.getElementById('hostId');
-                
-                if (!zoneId || zoneId === '*') {
-                    select.innerHTML = '<option value="*">全部域名</option>';
-                    select.disabled = true;
-                    return;
-                }
-                
-                select.disabled = true;
-                select.innerHTML = '<option value="*">加载中...</option>';
-                
+                setCustomSelectOptions('hostId', [{ value: '*', label: '加载中...' }], '*', true);
                 const response = await fetch(`/api/hosts?zoneId=${encodeURIComponent(zoneId)}`);
                 const result = await response.json();
-                
-                const currentVal = select.value;
-                select.innerHTML = '';
-                
-                // Always add "All Hosts" option
-                const allOption = document.createElement('option');
-                allOption.value = "*";
-                allOption.text = "全部域名";
-                select.appendChild(allOption);
-                
-                // 要屏蔽的域名列表（EdgeOne Pages 默认域名等）
+                const options = [{ value: '*', label: '全部域名' }];
                 const blockedDomains = ['.edgeone.'];
-                
+
                 if (result.Hosts && result.Hosts.length > 0) {
-                    // 过滤掉屏蔽的域名
-                    const filteredHosts = result.Hosts.filter(host => {
-                        return !blockedDomains.some(blocked => host.Host.includes(blocked));
-                    });
-                    
-                    filteredHosts.forEach(host => {
-                        const option = document.createElement('option');
-                        option.value = host.Host;
-                        option.text = host.Host;
-                        select.appendChild(option);
-                    });
-                    select.disabled = false;
-                } else {
-                    select.innerHTML = '<option value="*">暂无子域名</option>';
-                    select.disabled = true;
+                    result.Hosts
+                        .filter(host => !blockedDomains.some(blocked => host.Host.includes(blocked)))
+                        .forEach(host => {
+                            options.push({ value: host.Host, label: host.Host });
+                        });
                 }
-                
-                // Restore selection if it exists
-                if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
-                    select.value = currentVal;
-                } else {
-                    select.value = "*";
+
+                if (options.length === 1) {
+                    setCustomSelectOptions('hostId', [{ value: '*', label: '暂无子域名' }], '*', true);
+                    return;
                 }
+
+                const nextVal = options.some(option => option.value === currentVal) ? currentVal : '*';
+                setCustomSelectOptions('hostId', options, nextVal, false);
             } catch (err) {
                 console.error("Error fetching hosts:", err);
-                const select = document.getElementById('hostId');
-                select.innerHTML = '<option value="*">获取域名失败</option>';
-                select.disabled = true;
+                setCustomSelectOptions('hostId', [{ value: '*', label: '获取域名失败' }], '*', true);
             }
         }
 
@@ -1162,7 +1483,8 @@ body{font-family:"HarmonyOS Sans SC" !important}
 
             // 初始化时间范围按钮样式（不刷新数据）
             setTimeRange('today', false);
-            
+            initCustomSelects();
+
             // 使用 ResizeObserver 监听图表容器大小变化
             const resizeObserver = new ResizeObserver((entries) => {
                 entries.forEach(() => {
@@ -1568,65 +1890,67 @@ body{font-family:"HarmonyOS Sans SC" !important}
         //5.1. Security Section
         function updateSecuritySection(results) {
             const metrics = metricsConfig.security;
-            
-            // Check time range limit
             const { startTime, endTime } = calculateTimeRange();
             const start = new Date(startTime);
             const end = new Date(endTime);
             const isOver14Days = (end - start) > (14 * 24 * 60 * 60 * 1000 + 60000);
-            
-            // Reset error style if applicable
-            const kpiEl = document.getElementById('kpi_security_hits');
-            if (kpiEl) {
-                const p = kpiEl.parentElement.querySelector('p');
-                if (p) {
-                    if (isOver14Days) {
-                        p.innerText = "显示最近14天的安全防护数据";
-                        p.classList.add('text-amber-500');
-                    } else {
-                        p.innerText = "DDoS/CC 防护总拦截次数";
-                        p.classList.remove('text-amber-500');
-                    }
-                }
+            const note = document.getElementById('kpi_security_hits')?.parentElement.querySelector('p:last-child');
+            if (note) {
+                note.innerText = isOver14Days ? '显示最近14天的安全防护数据' : 'DDoS/CC 防护总拦截次数';
+                note.classList.toggle('text-amber-500', isOver14Days);
             }
 
             const series = [];
             let timeData = [];
             let totalHits = 0;
+            let aclHits = 0;
+            let managedHits = 0;
+            let prevTotalHits = 0;
+            let prevAclHits = 0;
+            let prevManagedHits = 0;
+            let hasPrev = false;
 
             metrics.forEach(metric => {
                 const data = results[metric];
-                if (!data || data.type !== 'time') return;
-                
-                totalHits += data.sum;
+                if (data && data.type === 'time') {
+                    totalHits += data.sum;
+                    if (metric === 'ccAcl_interceptNum') aclHits += data.sum;
+                    if (metric === 'ccManage_interceptNum' || metric === 'ccRate_interceptNum') managedHits += data.sum;
+                    if (timeData.length === 0) timeData = data.timeData;
+                    series.push({
+                        name: metricLabels[metric],
+                        type: 'line',
+                        smooth: true,
+                        stack: 'Total',
+                        areaStyle: {},
+                        emphasis: { focus: 'series' },
+                        data: data.valueData,
+                        itemStyle: { color: metricColors[metric] }
+                    });
+                }
 
-                if (timeData.length === 0) timeData = data.timeData;
-
-                series.push({
-                    name: metricLabels[metric],
-                    type: 'line',
-                    smooth: true,
-                    stack: 'Total', // Stacked area chart
-                    areaStyle: {},
-                    emphasis: { focus: 'series' },
-                    data: data.valueData,
-                    itemStyle: { color: metricColors[metric] }
-                });
+                const prevData = results[metric + '_prev'];
+                if (prevData) {
+                    hasPrev = true;
+                    prevTotalHits += prevData.sum;
+                    if (metric === 'ccAcl_interceptNum') prevAclHits += prevData.sum;
+                    if (metric === 'ccManage_interceptNum' || metric === 'ccRate_interceptNum') prevManagedHits += prevData.sum;
+                }
             });
 
-            // Update KPI
-            if (kpiEl) {
-                const formatted = formatCount(totalHits);
-                kpiEl.innerText = formatted;
+            const totalEl = document.getElementById('kpi_security_hits');
+            if (totalEl) totalEl.innerText = formatCount(totalHits);
 
-                // Growth
-                let prevTotalHits = 0;
-                let hasPrev = false;
-                metrics.forEach(metric => {
-                    const pd = results[metric + '_prev'];
-                    if (pd) { prevTotalHits += pd.sum; hasPrev = true; }
-                });
-                if (hasPrev) renderGrowth('kpi_security_hits', totalHits, prevTotalHits, true);
+            const aclEl = document.getElementById('kpi_ccAcl_interceptNum');
+            if (aclEl) aclEl.innerText = formatCount(aclHits);
+
+            const managedEl = document.getElementById('kpi_security_managed_hits');
+            if (managedEl) managedEl.innerText = formatCount(managedHits);
+
+            if (hasPrev) {
+                renderGrowth('kpi_security_hits', totalHits, prevTotalHits, true);
+                renderGrowth('kpi_ccAcl_interceptNum', aclHits, prevAclHits, true);
+                renderGrowth('kpi_security_managed_hits', managedHits, prevManagedHits, true);
             }
 
             const option = {
@@ -2834,32 +3158,12 @@ body{font-family:"HarmonyOS Sans SC" !important}
             chartPerformance && chartPerformance.resize();
             chartSecurity && chartSecurity.resize();
             chartTopMap && chartTopMap.resize();
-            chartOriginPull && chartOriginPull.resize();
-            chartTopProvince && chartTopProvince.resize();
             chartTopStatusCode && chartTopStatusCode.resize();
             chartTopRequestStatusCode && chartTopRequestStatusCode.resize();
             chartTopDomain && chartTopDomain.resize();
+            chartTopRequestDomain && chartTopRequestDomain.resize();
             chartTopUrl && chartTopUrl.resize();
             chartTopRequestUrl && chartTopRequestUrl.resize();
-            chartTopResourceType && chartTopResourceType.resize();
-            chartTopSip && chartTopSip.resize();
-            chartTopReferer && chartTopReferer.resize();
-            chartTopUaDevice && chartTopUaDevice.resize();
-            chartTopUaBrowser && chartTopUaBrowser.resize();
-            chartTopUaOs && chartTopUaOs.resize();
-            chartTopUa && chartTopUa.resize();
-            chartTopRequestProvince && chartTopRequestProvince.resize();
-            chartTopRequestStatusCode && chartTopRequestStatusCode.resize();
-            chartTopRequestDomain && chartTopRequestDomain.resize();
-            chartTopRequestUrl && chartTopRequestUrl.resize();
-            chartTopRequestResourceType && chartTopRequestResourceType.resize();
-            chartTopRequestSip && chartTopRequestSip.resize();
-            chartTopRequestReferer && chartTopRequestReferer.resize();
-            chartTopRequestUaDevice && chartTopRequestUaDevice.resize();
-            chartTopRequestUaBrowser && chartTopRequestUaBrowser.resize();
-            chartTopRequestUaOs && chartTopRequestUaOs.resize();
-            chartTopRequestUa && chartTopRequestUa.resize();
-            chartTopMap && chartTopMap.resize();
         });
 
         // Start - Entrance

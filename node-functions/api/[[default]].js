@@ -98,9 +98,9 @@ const FUNCTION_METRICS = [
 
 app.get('/config', (req, res) => {
     res.json({
-        siteName: process.env.SITE_NAME || '新锐博客流量分析',
+        siteName: process.env.SITE_NAME || '清羽飞扬流量分析',
         siteIcon: process.env.SITE_ICON || '/favicon.png',
-        icp: process.env.ICP || '苏ICP备2024091362号-3'
+        icp: process.env.ICP || '陕ICP备2024028531号'
     });
 });
 
