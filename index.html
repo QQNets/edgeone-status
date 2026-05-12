@@ -676,6 +676,9 @@
             try {
                 const response = await fetch('/api/config');
                 const config = await response.json();
+                window.__BLACK_LIST__ = Array.isArray(config.blackList)
+                    ? config.blackList.map(item => String(item || '').trim().toLowerCase()).filter(Boolean)
+                    : [];
                 if (config.siteName) {
                     document.title = config.siteName;
                     const headerEl = document.getElementById('page-header');
@@ -700,7 +703,37 @@
                 console.error("Error fetching config:", err);
             }
         }
-        fetchConfig();
+        const configReady = fetchConfig();
+
+        function getBlackList() {
+            return Array.isArray(window.__BLACK_LIST__) ? window.__BLACK_LIST__ : [];
+        }
+
+        function normalizeBlackListHost(value) {
+            const normalized = String(value || '').trim().toLowerCase().replace(/^`+|`+$/g, '');
+            if (!normalized || normalized === '-') return '';
+
+            if (/^https?:\/\//i.test(normalized)) {
+                try {
+                    return new URL(normalized).hostname.toLowerCase();
+                } catch (err) {
+                    return normalized;
+                }
+            }
+
+            return normalized.split('/')[0].split(':')[0];
+        }
+
+        function isBlockedHost(value) {
+            const host = normalizeBlackListHost(value);
+            return !!host && getBlackList().includes(host);
+        }
+
+        function filterTopResultItems(metric, items) {
+            if (!Array.isArray(items)) return items;
+            if (!(metric.includes('_domain') || metric.includes('_url') || metric.includes('_referers'))) return items;
+            return items.filter(item => !isBlockedHost(item?.Key));
+        }
 
         tailwind.config = {
             theme: {
@@ -1649,6 +1682,9 @@
 
                 const zoneId = document.getElementById('zoneId').value.trim();
                 const hostId = document.getElementById('hostId').value.trim();
+                if (hostId && hostId !== '*' && isBlockedHost(hostId)) {
+                    throw new Error('Requested host is blocked by BLACK_LIST');
+                }
                 
                 let url = `/api/traffic?metric=${metric}&startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`;
                 // 粒度始终自动，不添加 interval 参数
@@ -1675,7 +1711,7 @@
             if (result?.Data?.[0]?.DetailData) {
                  return {
                      type: 'top',
-                     data: result.Data[0].DetailData
+                     data: filterTopResultItems(targetMetric || '', result.Data[0].DetailData)
                  };
             }
 
@@ -2012,6 +2048,7 @@
                 if (result.Hosts && result.Hosts.length > 0) {
                     result.Hosts
                         .filter(host => !blockedDomains.some(blocked => host.Host.includes(blocked)))
+                        .filter(host => !isBlockedHost(host.Host))
                         .forEach(host => {
                             options.push({ value: host.Host, label: host.Host });
                         });
@@ -2032,6 +2069,7 @@
 
         ////ENTRANCE////
         async function initDashboard() {
+            await configReady;
             // Initialize charts
             chartTraffic = echarts.init(document.getElementById('chart_traffic'));
             chartBandwidth = echarts.init(document.getElementById('chart_bandwidth'));

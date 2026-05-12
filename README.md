@@ -82,17 +82,17 @@ edgeone login
 
 推荐使用环境变量：
 
+推荐本地调试时使用 `.env`：
+
 ```bash
 SECRET_ID=你的腾讯云 SecretId
 SECRET_KEY=你的腾讯云 SecretKey
+BLACK_LIST=["xxx.example.com","xxx2.example.com"]
 ```
 
-也可以在项目根目录创建 `key.txt`：
+也可以直接参考仓库里的 `.env.example` 创建本地 `.env`。
 
-```text
-SecretId：你的腾讯云 SecretId
-SecretKey：你的腾讯云 SecretKey
-```
+`BLACK_LIST` 用于隐藏和阻止请求指定域名的数据，支持 JSON 数组，或使用逗号/换行分隔多个域名。
 
 ### 4. 启动开发服务
 
@@ -155,7 +155,7 @@ QcloudTEOReadOnlyaccess
 
 - 确认密钥具备 EdgeOne 只读权限。
 - 确认 Pages Functions 已正确识别 `node-functions/api/[[default]].js`。
-- 若接口返回未配置密钥，请检查环境变量或 `key.txt` 格式。
+- 若接口返回未配置密钥，请检查项目根目录 `.env` 中的 `SECRET_ID` 与 `SECRET_KEY`。
 
 ## 技术栈
 

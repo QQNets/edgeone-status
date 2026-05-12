@@ -1,6 +1,4 @@
 import express from 'express';
-import path from 'path';
-import fs from 'fs';
 import 'dotenv/config';
 // import { fileURLToPath } from 'url';
 import { teo } from "tencentcloud-sdk-nodejs-teo";
@@ -13,37 +11,10 @@ const app = express();
 
 // Function to read keys
 function getKeys() {
-    // 1. Try Environment Variables first
-    let secretId = process.env.SECRET_ID;
-    let secretKey = process.env.SECRET_KEY;
-
-    if (secretId && secretKey) {
-        return { secretId, secretKey };
-    }
-
-    // 2. Try key.txt if Env Vars are missing
-    try {
-        // const keyPath = path.resolve(__dirname, '../../key.txt');
-        const keyPath = path.resolve(process.cwd(), 'key.txt');
-        
-        if (fs.existsSync(keyPath)) {
-            const content = fs.readFileSync(keyPath, 'utf-8');
-            const lines = content.split('\n');
-            
-            lines.forEach(line => {
-                if (line.includes('SecretId') && !secretId) {
-                    secretId = line.split('：')[1].trim();
-                }
-                if (line.includes('SecretKey') && !secretKey) {
-                    secretKey = line.split('：')[1].trim();
-                }
-            });
-        }
-    } catch (err) {
-        console.error("Error reading key.txt:", err);
-    }
-
-    return { secretId, secretKey };
+    return {
+        secretId: process.env.SECRET_ID,
+        secretKey: process.env.SECRET_KEY
+    };
 }
 
 // Metrics that belong to DescribeTimingL7OriginPullData
@@ -96,17 +67,98 @@ const FUNCTION_METRICS = [
     'function_cpuCostTime'
 ];
 
+function parseBlacklist(rawValue) {
+    if (!rawValue) return [];
+
+    try {
+        const parsed = JSON.parse(rawValue);
+        if (Array.isArray(parsed)) {
+            return parsed
+                .map(item => String(item || '').trim().toLowerCase())
+                .filter(Boolean);
+        }
+    } catch (err) {
+        // Fallback for comma/newline separated values.
+    }
+
+    return rawValue
+        .split(/[\n,]/)
+        .map(item => item.trim().toLowerCase())
+        .filter(Boolean);
+}
+
+function normalizeHost(value) {
+    return String(value || '').trim().toLowerCase();
+}
+
+function extractHostname(value) {
+    const normalized = normalizeHost(value).replace(/^`+|`+$/g, '');
+    if (!normalized || normalized === '-') return '';
+
+    if (/^https?:\/\//i.test(normalized)) {
+        try {
+            return new URL(normalized).hostname.toLowerCase();
+        } catch (err) {
+            return normalized;
+        }
+    }
+
+    return normalized.split('/')[0].split(':')[0];
+}
+
+function createBlacklistSet() {
+    return new Set(parseBlacklist(process.env.BLACK_LIST));
+}
+
+function isBlacklistedHost(host, blacklistSet = createBlacklistSet()) {
+    return blacklistSet.has(extractHostname(host));
+}
+
+function filterDetailDataByBlacklist(metric, detailData, blacklistSet = createBlacklistSet()) {
+    if (!Array.isArray(detailData) || blacklistSet.size === 0) return detailData;
+
+    const shouldFilter = metric.includes('_domain') || metric.includes('_url') || metric.includes('_referers');
+    if (!shouldFilter) return detailData;
+
+    return detailData.filter(item => !isBlacklistedHost(item?.Key, blacklistSet));
+}
+
+function filterApiResponseData(metric, data, blacklistSet = createBlacklistSet()) {
+    if (!data || blacklistSet.size === 0 || !Array.isArray(data.Data)) return data;
+
+    data.Data = data.Data.map(item => {
+        if (Array.isArray(item?.DetailData)) {
+            return {
+                ...item,
+                DetailData: filterDetailDataByBlacklist(metric, item.DetailData, blacklistSet)
+            };
+        }
+        if (Array.isArray(item?.Data)) {
+            return {
+                ...item,
+                Data: filterDetailDataByBlacklist(metric, item.Data, blacklistSet)
+            };
+        }
+        return item;
+    });
+
+    return data;
+}
+
 app.get('/config', (req, res) => {
+    const blackList = parseBlacklist(process.env.BLACK_LIST);
     res.json({
         siteName: process.env.SITE_NAME || '清羽飞扬流量分析',
         siteIcon: process.env.SITE_ICON || '/favicon.png',
-        icp: process.env.ICP || '陕ICP备2024028531号'
+        icp: process.env.ICP || '陕ICP备2024028531号',
+        blackList
     });
 });
 
 app.get('/zones', async (req, res) => {
     try {
         const { secretId, secretKey } = getKeys();
+        const blacklistSet = createBlacklistSet();
         
         if (!secretId || !secretKey) {
             return res.status(500).json({ error: "Missing credentials" });
@@ -131,6 +183,9 @@ app.get('/zones', async (req, res) => {
         
         console.log("Calling DescribeZones...");
         const data = await client.DescribeZones(params);
+        if (Array.isArray(data?.Zones) && blacklistSet.size > 0) {
+            data.Zones = data.Zones.filter(zone => !isBlacklistedHost(zone?.ZoneName, blacklistSet));
+        }
         res.json(data);
     } catch (err) {
         console.error("Error calling DescribeZones:", err);
@@ -406,6 +461,7 @@ app.get('/pages/cloud-function-monthly-stats', async (req, res) => {
 app.get('/traffic', async (req, res) => {
     try {
         const { secretId, secretKey } = getKeys();
+        const blacklistSet = createBlacklistSet();
         
         if (!secretId || !secretKey) {
             return res.status(500).json({ error: "Missing credentials" });
@@ -441,6 +497,9 @@ app.get('/traffic', async (req, res) => {
         const zoneId = req.query.zoneId;
         const zoneIds = zoneId ? [ zoneId ] : [ "*" ];
         const host = req.query.host;
+        if (host && host !== '*' && isBlacklistedHost(host, blacklistSet)) {
+            return res.status(403).json({ error: "Requested host is blocked by BLACK_LIST" });
+        }
         const hosts = host && host !== '*' ? [ host ] : null;
 
         let params = {};
@@ -592,7 +651,7 @@ app.get('/traffic', async (req, res) => {
             }
         }
         
-        res.json(data);
+        res.json(filterApiResponseData(metric, data, blacklistSet));
     } catch (err) {
         console.error("Error calling Tencent Cloud API:", err);
         res.status(500).json({ error: err.message });
@@ -603,6 +662,7 @@ app.get('/traffic', async (req, res) => {
 app.get('/hosts', async (req, res) => {
     try {
         const { secretId, secretKey } = getKeys();
+        const blacklistSet = createBlacklistSet();
         
         if (!secretId || !secretKey) {
             return res.status(500).json({ error: "Missing credentials" });
@@ -670,7 +730,7 @@ app.get('/hosts', async (req, res) => {
         const uniqueHosts = [];
         const seen = new Set();
         for (const host of hosts) {
-            if (!seen.has(host.Host)) {
+            if (!seen.has(host.Host) && !isBlacklistedHost(host.Host, blacklistSet)) {
                 seen.add(host.Host);
                 uniqueHosts.push(host);
             }
